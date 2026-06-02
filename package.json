@@ -1,0 +1,19 @@
+{
+  "name": "sarvam-transcribe",
+  "version": "1.0.0",
+  "description": "Transcribe audio files to text using the Sarvam AI Speech-to-Text API (auto language detection).",
+  "type": "module",
+  "bin": {
+    "sarvam-transcribe": "bin/transcribe.js",
+    "sarvam-transcribe-api": "bin/serve.js"
+  },
+  "scripts": {
+    "transcribe": "node bin/transcribe.js",
+    "serve": "node bin/serve.js",
+    "start": "node bin/serve.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}

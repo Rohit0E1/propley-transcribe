@@ -1,0 +1,13 @@
+node_modules/
+.env
+*.log
+
+# local audio test files
+*.wav
+*.mp3
+*.m4a
+*.flac
+*.ogg
+*.opus
+*.webm
+!sample.wav
