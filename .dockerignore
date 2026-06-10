@@ -1,0 +1,19 @@
+node_modules/
+.env
+*.log
+
+# local audio test files — not needed in the image
+audio/
+*.wav
+*.mp3
+*.m4a
+*.flac
+*.ogg
+*.opus
+*.webm
+
+# generated score outputs
+scores/
+
+.git/
+.gitignore

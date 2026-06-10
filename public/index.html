@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cadence — Call QC</title>
+<style>
+  :root{
+    --bg:#0f1216; --panel:#171b21; --panel2:#1d232b; --line:#2a313b;
+    --ink:#e8edf3; --muted:#94a3b2; --accent:#5b8cff;
+    --pass:#39c07f; --partial:#e6b34a; --fail:#e5524c; --crit:#e5524c;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  .wrap{max-width:1000px;margin:0 auto;padding:28px 20px 80px}
+  h1{font-size:22px;margin:0 0 2px}
+  .sub{color:var(--muted);font-size:13px;margin-bottom:22px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+  /* upload */
+  .uploader{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  input[type=file]{color:var(--muted)}
+  select,button{font:inherit}
+  select{background:var(--panel2);color:var(--ink);border:1px solid var(--line);
+    border-radius:9px;padding:9px 12px}
+  button.primary{background:var(--accent);color:#fff;border:0;border-radius:9px;
+    padding:10px 18px;cursor:pointer;font-weight:600}
+  button.primary:disabled{opacity:.5;cursor:default}
+  .hint{color:var(--muted);font-size:12px;margin-top:10px}
+  /* status */
+  #status{margin-top:16px;display:none}
+  .spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--line);
+    border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;
+    vertical-align:-3px;margin-right:8px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .err{color:var(--fail)}
+  /* result */
+  #result{display:none;margin-top:24px}
+  .grid{display:grid;grid-template-columns:1fr 280px;gap:16px;margin-bottom:16px}
+  @media(max-width:760px){.grid{grid-template-columns:1fr}}
+  .ring{display:flex;align-items:center;gap:18px}
+  .score{font-size:46px;font-weight:800;line-height:1}
+  .score small{font-size:16px;color:var(--muted);font-weight:600}
+  .band{display:inline-block;padding:4px 12px;border-radius:999px;font-weight:700;font-size:13px}
+  .band.Good{background:rgba(57,192,127,.15);color:var(--pass)}
+  .band.Average{background:rgba(230,179,74,.15);color:var(--partial)}
+  .band.Bad{background:rgba(229,82,76,.15);color:var(--fail)}
+  .band.CriticalFail{background:rgba(229,82,76,.18);color:var(--fail)}
+  .rollup{display:flex;gap:10px}
+  .pill{flex:1;text-align:center;background:var(--panel2);border:1px solid var(--line);
+    border-radius:10px;padding:10px 6px}
+  .pill b{display:block;font-size:22px}
+  .pill span{font-size:11px;color:var(--muted)}
+  .banner{display:flex;gap:10px;align-items:center;background:rgba(229,82,76,.12);
+    border:1px solid rgba(229,82,76,.4);color:#ffd9d7;border-radius:12px;
+    padding:12px 16px;margin-bottom:16px;font-weight:600}
+  .sectit{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;
+    margin:22px 0 10px}
+  /* parameter cards */
+  .params{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  @media(max-width:760px){.params{grid-template-columns:1fr}}
+  .p{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;
+    cursor:pointer;transition:border-color .15s}
+  .p:hover{border-color:var(--accent)}
+  .p.s-fail{border-left:4px solid var(--fail)}
+  .p.s-partial{border-left:4px solid var(--partial)}
+  .p.s-pass{border-left:4px solid var(--pass)}
+  .p .top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  .code{font-size:11px;color:var(--muted);font-weight:700}
+  .badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;margin-left:5px}
+  .b-crit{background:rgba(229,82,76,.18);color:var(--fail)}
+  .b-auto{background:rgba(229,82,76,.3);color:#fff}
+  .b-pass{background:rgba(57,192,127,.15);color:var(--pass)}
+  .b-partial{background:rgba(230,179,74,.15);color:var(--partial)}
+  .b-fail{background:rgba(229,82,76,.15);color:var(--fail)}
+  .p .name{font-weight:600;margin:8px 0 2px}
+  .p .sublabel{font-size:11px;color:var(--muted)}
+  .p .sc{font-size:26px;font-weight:800;margin-top:8px}
+  .p .sc small{font-size:14px;color:var(--muted);font-weight:600}
+  .p .meta{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);
+    margin-top:6px}
+  .ded{color:var(--fail);font-weight:600}
+  .detail{display:none;margin-top:12px;border-top:1px dashed var(--line);padding-top:12px;font-size:13px}
+  .detail.open{display:block}
+  .detail .row{margin-bottom:8px}
+  .detail .lbl{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+  .coach{background:rgba(91,140,255,.1);border:1px solid rgba(91,140,255,.3);
+    border-radius:8px;padding:8px 10px;color:#cfe0ff}
+  pre.tx{white-space:pre-wrap;background:var(--panel2);border:1px solid var(--line);
+    border-radius:10px;padding:14px;max-height:340px;overflow:auto;font-size:13px;color:#cdd6e0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Cadence — Call QC</h1>
+  <div class="sub">Upload a call recording → transcribe → parameter-wise QC scorecard</div>
+
+  <div class="card">
+    <div class="uploader">
+      <input id="file" type="file" accept="audio/*,.mp3,.wav,.m4a,.ogg,.flac" />
+      <select id="lang">
+        <option value="hi-IN" selected>Hindi (hi-IN)</option>
+        <option value="unknown">Auto-detect</option>
+        <option value="en-IN">English (en-IN)</option>
+      </select>
+      <button id="go" class="primary">Analyse call</button>
+    </div>
+    <div class="hint">Long recordings use Sarvam's batch STT — scoring can take 1–3 minutes. Keep this tab open.</div>
+    <div id="status"></div>
+  </div>
+
+  <div id="result"></div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const fileEl = $("#file"), langEl = $("#lang"), goEl = $("#go"),
+      statusEl = $("#status"), resultEl = $("#result");
+
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c =>
+  ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+goEl.addEventListener("click", async () => {
+  const f = fileEl.files[0];
+  if (!f) { showStatus('<span class="err">Pick an audio file first.</span>'); return; }
+
+  goEl.disabled = true;
+  resultEl.style.display = "none";
+  showStatus('<span class="spinner"></span>Uploading & analysing <b>' + esc(f.name) +
+             '</b> … transcribing then scoring (this can take a couple of minutes).');
+
+  const fd = new FormData();
+  fd.append("audio", f);
+  fd.append("language", langEl.value);
+  fd.append("rubric", "cadence");
+
+  try {
+    const r = await fetch("/score-upload", { method: "POST", body: fd });
+    const data = await r.json();
+    if (!r.ok || data.error) throw new Error(data.error || ("HTTP " + r.status));
+    statusEl.style.display = "none";
+    render(data);
+  } catch (e) {
+    showStatus('<span class="err">Failed: ' + esc(e.message) + "</span>");
+  } finally {
+    goEl.disabled = false;
+  }
+});
+
+function showStatus(html){ statusEl.innerHTML = html; statusEl.style.display = "block"; }
+
+function render(data){
+  const qc = data.qc || {};
+  const params = qc.parameters || [];
+  const counts = qc.counts || {passed:0,partial:0,failed:0};
+  const bandClass = String(qc.band || "").replace(/\s+/g,"");
+  const tx = data.diarized_transcript || data.transcript || "(no transcript)";
+
+  const banner = qc.critical_fail ? `
+    <div class="banner">⚠️ Critical compliance breach — Auto-fail. The overall call result is capped to Fail regardless of the numeric score.</div>` : "";
+
+  const paramCards = params.map((p,i) => {
+    const badges = [];
+    if (p.critical)  badges.push('<span class="badge b-crit">Critical</span>');
+    if (p.is_breach) badges.push('<span class="badge b-auto">Auto-fail</span>');
+    badges.push(`<span class="badge b-${p.status}">${p.status==="pass"?"Pass":p.status==="partial"?"Partial":"Fail"}</span>`);
+    return `
+      <div class="p s-${p.status}" onclick="this.querySelector('.detail').classList.toggle('open')">
+        <div class="top">
+          <span class="code">${esc(p.code||("P"+(i+1)))}</span>
+          <span>${badges.join("")}</span>
+        </div>
+        <div class="name">${esc(p.name)}</div>
+        ${p.sublabel?`<div class="sublabel">${esc(p.sublabel)}</div>`:""}
+        <div class="sc">${p.score}<small> / ${p.max}</small></div>
+        <div class="meta">
+          <span>Weight ${p.weight}%</span>
+          ${p.deduction>0?`<span class="ded">− ${p.deduction} pts</span>`:`<span style="color:var(--pass)">full marks</span>`}
+        </div>
+        <div class="detail">
+          ${p.what_was_correct?`<div class="row"><div class="lbl">What was correct</div>${esc(p.what_was_correct)}</div>`:""}
+          ${p.what_was_missed?`<div class="row"><div class="lbl">What was missed</div>${esc(p.what_was_missed)}</div>`:""}
+          ${p.reason?`<div class="row"><div class="lbl">Reason for score</div>${esc(p.reason)}</div>`:""}
+          ${p.coaching?`<div class="row"><div class="lbl">Coaching</div><div class="coach">${esc(p.coaching)}</div></div>`:""}
+        </div>
+      </div>`;
+  }).join("");
+
+  resultEl.innerHTML = `
+    ${banner}
+    <div class="grid">
+      <div class="card">
+        <div class="ring">
+          <div class="score">${qc.total_score ?? "–"}<small> / 100</small></div>
+          <div>
+            <span class="band ${bandClass}">${esc(qc.band||"—")}</span>
+            <div class="sub" style="margin:8px 0 0">${esc(qc.summary||"")}</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="rollup">
+          <div class="pill"><b style="color:var(--pass)">${counts.passed}</b><span>Passed</span></div>
+          <div class="pill"><b style="color:var(--partial)">${counts.partial}</b><span>Partial</span></div>
+          <div class="pill"><b style="color:var(--fail)">${counts.failed}</b><span>Failed</span></div>
+        </div>
+        <div class="hint" style="margin-top:10px">
+          ${esc(data.source||"")}<br>${esc(data.language_code||"")} · ${esc(data.stt_model||"")}
+        </div>
+      </div>
+    </div>
+
+    <div class="sectit">Parameter-wise scorecard · click a card for full transparency</div>
+    <div class="params">${paramCards}</div>
+
+    <div class="sectit">Diarized transcript</div>
+    <div class="card"><pre class="tx">${esc(tx)}</pre></div>
+  `;
+  resultEl.style.display = "block";
+  resultEl.scrollIntoView({behavior:"smooth"});
+}
+</script>
+</body>
+</html>

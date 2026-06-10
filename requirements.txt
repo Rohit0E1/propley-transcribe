@@ -1,0 +1,6 @@
+# Python deps for the QC scorer (src/score.py).
+# sarvamai  -> Sarvam batch Speech-to-Text
+# google-genai + google-auth -> Gemini scoring on Vertex AI
+sarvamai>=0.1.0
+google-genai>=1.0.0
+google-auth>=2.0.0

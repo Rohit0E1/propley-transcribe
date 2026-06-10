@@ -2,6 +2,17 @@ node_modules/
 .env
 *.log
 
+# python build artifacts
+__pycache__/
+*.pyc
+
+# generated QC outputs (contain real call transcripts — keep out of the repo)
+scores/
+
+# DB-maintenance scripts (not part of the deployable app)
+load_recordings.py
+load_drive_recordings.py
+
 # local audio test files
 *.wav
 *.mp3

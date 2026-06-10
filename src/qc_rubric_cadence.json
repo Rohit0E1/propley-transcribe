@@ -1,0 +1,102 @@
+{
+  "name": "Cadence Call Intelligence — Collections QC",
+  "total": 100,
+  "scoring": "Each parameter has a max score. The agent earns a score from 0..max on each. The total is the sum of earned scores out of 100. Compliance is a critical parameter and is flagged when breached, but it does NOT auto-fail the call — a breach loses Compliance points and raises a critical flag for review, while the rest of the call is still scored on its merits.",
+  "bands": [
+    { "label": "Good", "min": 80 },
+    { "label": "Average", "min": 60 },
+    { "label": "Bad", "min": 0 }
+  ],
+  "parameters": [
+    {
+      "key": "opening_greeting",
+      "code": "P1",
+      "name": "Opening & Greeting",
+      "max": 12,
+      "weight": 12,
+      "critical": false,
+      "definition": "Prompt greeting and opening; agent identifies self and company.",
+      "fail_if": "No greeting at all, or no attempt to identify self/company. Minor clunkiness, slightly late intro, or imperfect phrasing should NOT be penalised — award near-full marks if the agent greeted and identified themselves in any reasonable way.",
+      "expected": "A greeting is given and the agent states who they are / which company they're calling from. Be generous — a normal opening earns near-full marks."
+    },
+    {
+      "key": "tone_pace_empathy",
+      "code": "P2",
+      "name": "Tone, Pace & Empathy",
+      "max": 15,
+      "weight": 15,
+      "critical": false,
+      "definition": "Soft skills — tone, rate of speech, active listening and empathy toward the customer.",
+      "fail_if": "Clearly harsh/rude tone, constant interruptions, or no empathy to an obviously distressed customer. Do NOT penalise for slightly fast pace or imperfect grammar — only deduct for genuinely poor soft skills.",
+      "expected": "Reasonable tone and pace, lets the customer speak, acknowledges their situation. Award generous partial credit for a professional, non-rude delivery."
+    },
+    {
+      "key": "problem_understanding",
+      "code": "P3",
+      "name": "Problem Understanding",
+      "max": 10,
+      "weight": 10,
+      "critical": false,
+      "definition": "Agent understands the customer's situation, reason for non-payment, and constraints.",
+      "fail_if": "Agent completely ignored the customer's situation or pitched without any attempt to understand it. If the customer gave no reason / hardship, do not penalise for not probing further.",
+      "expected": "Shows a basic grasp of the customer's situation; probes when the customer raises a concern."
+    },
+    {
+      "key": "resolution_accuracy",
+      "code": "P4",
+      "name": "Resolution Accuracy",
+      "max": 20,
+      "weight": 20,
+      "critical": false,
+      "definition": "Accuracy of account details quoted (overdue, EMI, outstanding, due date) and correctness of the resolution / payment plan offered.",
+      "fail_if": "Clearly wrong financial figures, or no resolution / payment plan attempted at all.",
+      "expected": "Quotes correct figures for what the call covers and secures a sensible resolution / PTP. Award strong marks when a clear PTP or payment commitment is obtained."
+    },
+    {
+      "key": "compliance_rbi",
+      "code": "P5",
+      "name": "Compliance",
+      "sublabel": "RBI Fair Practices Code",
+      "max": 10,
+      "weight": 10,
+      "critical": true,
+      "auto_fail": false,
+      "definition": "Adherence to RBI Fair Practices Code and recovery-conduct rules: no coercion, no threats, no abusive language, recording/grievance disclosure, respectful treatment.",
+      "fail_if": "Coercion, explicit threats (field visit / legal action used as intimidation), or abusive language. A missing recording/grievance disclosure loses SOME points but is a minor deduction, not a zero. Flag is_breach=true ONLY for coercion / threats / abuse — not for a merely-omitted disclosure.",
+      "expected": "Respectful, non-coercive conduct with no threats. Disclosures are a plus but their absence is a small deduction, not a fail."
+    },
+    {
+      "key": "ownership",
+      "code": "P6",
+      "name": "Ownership",
+      "max": 13,
+      "weight": 13,
+      "critical": false,
+      "definition": "Agent takes ownership of the case — drives toward a clear commitment and next step.",
+      "fail_if": "Agent made no attempt to secure any commitment or next step and simply ended the call.",
+      "expected": "Drives toward a PTP / commitment and a next step. Award strong marks when a commitment is secured."
+    },
+    {
+      "key": "additional_assistance",
+      "code": "P7",
+      "name": "Additional Assistance",
+      "max": 10,
+      "weight": 10,
+      "critical": false,
+      "definition": "Agent offers relevant help — restructuring options for hardship, alternate channels, answering queries.",
+      "fail_if": "Customer asked for help / raised a query and the agent ignored it. If no hardship or query was raised, do not penalise.",
+      "expected": "Answers the customer's questions and offers relevant options where appropriate."
+    },
+    {
+      "key": "call_closure",
+      "code": "P8",
+      "name": "Call Closure",
+      "max": 10,
+      "weight": 10,
+      "critical": false,
+      "definition": "Proper closing — recap of commitment, thanks, and a clean close.",
+      "fail_if": "Abrupt disconnection with no closing at all.",
+      "expected": "Thanks the customer and closes cleanly; a recap of the commitment is a plus. Award generous partial credit for any polite close."
+    }
+  ]
+}
